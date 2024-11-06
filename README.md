@@ -50,21 +50,8 @@ This project is a real-time real estate scraper for the Yad2 website that sends 
     ```
 
 3. Run the script:
-    ```sh
-    python script.py
+    ```sh python 
+    src/python app.py
     ```
 
-## Code Overview
 
-### Import Libraries and Setup Twilio Client
-
-```python
-import requests
-from twilio.rest import Client
-import os
-import json
-import time
-
-# Your Twilio account SID and auth token
-account_sid = 'your_account_sid'
-auth_token = 'your_auth_token'
