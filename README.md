@@ -26,7 +26,7 @@ This project is a real-time real estate scraper for the Yad2 website that sends 
 
 2. Install the required packages:
     ```sh
-    pip install requests twilio
+    pip install -r requirements.txt
     ```
 
 ## Usage
