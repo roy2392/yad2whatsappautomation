@@ -1,54 +1,63 @@
 import requests
 from twilio.rest import Client
 import os
-import json
-import time
 from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv(dotenv_path='../.env')
 
 account_sid = os.getenv('TWILIO_ACCOUNT_SID')
 auth_token = os.getenv('TWILIO_AUTH_TOKEN')
 
 def get_url():
-    # Hod Hasharon
     url = "https://gw.yad2.co.il/feed-search-legacy/realestate/rent"
     params = {
-        'topArea': 19,
-        'area': 54,
-        'city': 9700,
-        'rooms': '2-4',
-        'price': '0-5000',
-        'forceLdLoad': True
+            'topArea': 19,
+            'area': 54,
+            'city': 9700,
+            'rooms': '2-4',
+            'price': '0-5000',
+            'forceLdLoad': True
     }
     response = requests.get(url, params=params)
     return response.json()
 
-def sorted_items():
+def format_listing(item):
+    listing_url = f"https://www.yad2.co.il/real-estate/rent/{item['id']}"
+    return (
+            f"*New Listing*\n"
+            f"📍 Location: {item['row_1']}\n"
+            f"🏘️ Area: {item['row_2']}\n"
+            f"📊 Details: {item['row_3']}\n"
+            f"🔗 Link: {listing_url}\n"
+            f"-------------------"
+    )
+
+def get_listings():
     response = get_url()
     feed_items = response["data"]["feed"]["feed_items"]
-    result = feed_items
-    with open("new.txt", "w") as f:
-        for item in result:
-            if item["type"] == "ad":
-                f.write(f'{item["row_1"]} {item["row_2"]} {item["row_3"]}\n')
-    with open('new.txt', 'r') as f:
-        lines = f.readlines()
-        lines = sorted(set(lines))
-    with open('new.txt', 'w') as f:
-        f.writelines(lines)
-    with open('new.txt', 'r') as new_file:
-        new_lines = new_file.readlines()
-    diff_lines = []
-    diff_lines.append(new_lines)
-    return diff_lines
+    formatted_listings = []
+    
+    for item in feed_items:
+        if item["type"] == "ad":
+            formatted_listings.append(format_listing(item))
+    
+    return formatted_listings
 
 def send_whatsapp():
     client = Client(account_sid, auth_token)
-    message = client.messages.create(
-        from_='whatsapp:+14155238886',
-        body=sorted_items(),
-        to='whatsapp:+972526000000'
-    )
-    print(message.sid)
+    listings = get_listings()
+    
+    for listing in listings:
+        try:
+            message = client.messages.create(
+                    from_='whatsapp:+14155238886',
+                    body=listing,
+                    to='whatsapp:+972528978214'
+            )
+            print(f"Message sent: {message.sid}")
+        except Exception as e:
+            print(f"Error sending message: {e}")
 
 def main():
     send_whatsapp()
