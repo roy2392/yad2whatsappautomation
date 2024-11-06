@@ -50,8 +50,9 @@ This project is a real-time real estate scraper for the Yad2 website that sends 
     ```
 
 3. Run the script:
-    ```sh python 
-    src/python app.py
+    ```bash  
+       python src/python app.py
+
     ```
 
 
